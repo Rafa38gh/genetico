@@ -1,22 +1,42 @@
 #include "../class/mapa.h"
 #include <iostream>
+#include <iomanip>
 
-Mapa::Mapa(int n)
-{
-    pontos.resize(n);
-    distancias.resize(n, std::vector<float>(n, 0.0f));
-}
+Mapa::Mapa() = default;
 
-void Mapa::adicionarPonto(int i, float x, float y)
+
+void Mapa::adicionarPonto(float x, float y)
 {
+    int n;
+
     pontos.push_back({x, y});
+
+    n = pontos.size();
+    distancias.resize(n);
+    for(auto &linha : distancias)
+    {
+        linha.resize(n, 0.0f);
+    }
 }
 
-void Mapa::setDist(int i, int j, float valor)
+void Mapa::calcDist()
 {
-    if(i >= 0 && j >= 0 && i < (int)distancias.size() && j < (int)distancias.size())
+    int n = pontos.size();
+
+    for(int i = 0; i < n; i++)
     {
-        distancias[i][j] = valor;
+        for(int j = 0; j < n; j++)
+        {
+            if(i == j)
+            {
+                distancias[i][j] = 0.0f;
+            } else
+            {
+                float dx = pontos[i].x - pontos[j].x;
+                float dy = pontos[i].y - pontos[j].y;
+                distancias[i][j] = std::sqrt(dx * dx + dy * dy);
+            }
+        }
     }
 }
 
@@ -37,6 +57,8 @@ int Mapa::getNumPontos() const
 
 void Mapa::printMatriz() const
 {
+    std::cout << std::fixed << std::setprecision(2);        // Imprimir usando 2 casas decimais
+
     for(int i = 0; i < distancias.size(); i++)
     {
         for(int j = 0; j < distancias[i].size(); j++)

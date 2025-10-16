@@ -17,12 +17,13 @@ class Mapa
         std::vector<std::vector<float>> distancias;
 
     public:
-        Mapa(int n = 0);
+        Mapa();
 
-        void adicionarPonto(int i, float x, float y);
+        void adicionarPonto(float x, float y);
+        void calcDist();
 
         // Setters
-        void setDist(int i, int j, float valor);
+        //void setDist(int i, int j, float valor);
 
         // Getters
         Ponto getPonto(int i) const;
