@@ -1,4 +1,5 @@
 #include "class/mapa.h"
+#include "class/ga.h"
 #include <iostream>
 
 int main()
@@ -20,6 +21,13 @@ int main()
     std::cout << "Matriz:\n";
     mapa.calcDist();
     mapa.printMatriz();
+
+    GA ga(mapa, 5, 50, 0.05f);
+    ga.startPop();
+    ga.avaliarPop();
+
+    std::cout << "\nPopulação: \n";
+    ga.printPop();
 
     return 0;
 }
