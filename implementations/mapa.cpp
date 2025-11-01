@@ -68,3 +68,16 @@ void Mapa::printMatriz() const
         std::cout << "\n";
     }
 }
+
+void Mapa::printPontos() const {
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "Pontos:\n";
+    for (size_t i = 0; i < pontos.size(); ++i) {
+        if(i < pontos.size() - 1){
+            std::cout << "[" << pontos[i].x << ", " << pontos[i].y << "], \n";
+        }
+        else{
+        std::cout << "[" << pontos[i].x << ", " << pontos[i].y << "]\n";
+        }
+    }
+}

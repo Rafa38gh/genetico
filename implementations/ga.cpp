@@ -165,7 +165,13 @@ void GA::evoluir()
             float melhorDist = 1.0f / aptidoes[melhorIdx];
             std::cout << "Geração " << gen << ": Melhor Distância = " << std::fixed << std::setprecision(2) << melhorDist
                       << ", Rota = ";
-            for (int c : populacao[melhorIdx]) std::cout << c << " ";
+            for (size_t i = 0; i < populacao[melhorIdx].size(); ++i) {
+                std::cout << populacao[melhorIdx][i];
+                if (i < populacao[melhorIdx].size() - 1) {
+                    std::cout << ", ";
+                }
+            }
+            
             std::cout << "\n";
         }
     }

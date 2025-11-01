@@ -29,9 +29,8 @@ class Mapa
         Ponto getPonto(int i) const;
         float getDist(int i, int j) const;
         int getNumPontos() const;
-
+        void printPontos() const;    
         void printMatriz() const;
 };
-
 
 #endif // MAPA_H

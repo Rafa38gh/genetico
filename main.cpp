@@ -13,7 +13,8 @@ Mapa gerarMapaUniforme(int numPontos, float tamanho = 10.0f) {
         mapa.adicionarPonto(dist(g), dist(g));
     }
     mapa.calcDist();
-    mapa.printMatriz();
+    //mapa.printMatriz();
+    mapa.printPontos();
     return mapa;
 }
 
@@ -27,23 +28,24 @@ Mapa gerarMapaCirculo(int numPontos, float raio = 5.0f) {
         mapa.adicionarPonto(x, y);
     }
     mapa.calcDist();
-    mapa.printMatriz();
+    //  mapa.printMatriz();
+    mapa.printPontos();
     return mapa;
 }
 
 int main()
 {
-    int numPontos = 10;
-    int tamPop = 100;
-    int numGen = 500;
-    float taxaMut = 0.01f;
+    int numPontos = 50;
+    int tamPop = 1000;
+    int numGen = 1000;
+    float taxaMut = 0.05f;
 
     std::cout << "Cenário Uniforme\n";
     Mapa mapaUniforme = gerarMapaUniforme(numPontos);
     GA gaUniforme(mapaUniforme, tamPop, numGen, taxaMut);
     gaUniforme.evoluir();
 
-    std::cout << "\nCenário Circular\n";
+    /*std::cout << "\nCenário Circular\n";
     Mapa mapaCirculo = gerarMapaCirculo(numPontos);
     GA gaCirculo(mapaCirculo, tamPop, numGen, taxaMut);
     gaCirculo.evoluir();
@@ -51,7 +53,7 @@ int main()
     std::cout << "\nCircular com 30 pontos\n";
     Mapa mapaBonus = gerarMapaCirculo(30);
     GA gaBonus(mapaBonus, tamPop, numGen * 2, taxaMut);
-    gaBonus.evoluir();
+    gaBonus.evoluir();*/
 
     return 0;
 }
