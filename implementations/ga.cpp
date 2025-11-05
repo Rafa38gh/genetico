@@ -1,13 +1,13 @@
 #include "../class/ga.h"
 #include <iostream>
 #include <algorithm>
-#include <random>
 #include <numeric>
 #include <iomanip>
 #include <chrono>
+#include <fstream>
 
 GA::GA(const Mapa& mapa, int tamPop, int numGen, float taxaMut, float taxaElit, int tamanhoTorneio)
-    : mapa(mapa), tamPop(tamPop), numGen(numGen), taxaMut(taxaMut), taxaElit(taxaElit), tamanhoTorneio(tamanhoTorneio)
+    : mapa(mapa), tamPop(tamPop), numGen(numGen), taxaMut(taxaMut), taxaElit(taxaElit), tamanhoTorneio(tamanhoTorneio), historicoMelhorDist()
 {
     if (mapa.getNumPontos() < 2) throw std::runtime_error("Mapa deve ter pelo menos 2 pontos");
     if (tamPop <= 0 || taxaMut < 0 || taxaMut > 1 || taxaElit < 0 || taxaElit > 1 || tamanhoTorneio <= 0)
@@ -72,11 +72,10 @@ void GA::printPop() const
 
 //func de selecao por torneio, retorna a rota do melhor individuo selecionado
 std::vector<int> GA::selecaoTorneio()
-{
-    std::random_device rd;
-    std::mt19937 g(rd());
+{   
+    std::uniform_int_distribution<> dist(0, tamPop - 1);
     std::vector<int> candidatos(tamanhoTorneio);                //indices dos individuos selecionados
-    std::generate(candidatos.begin(), candidatos.end(), [&]() { return std::uniform_int_distribution<>(0, tamPop - 1)(g); });  //seleciona individuos aleatoriamente
+    std::generate(candidatos.begin(), candidatos.end(), [&]() { return dist(rng); });  //seleciona individuos aleatoriamente
     auto melhor = *std::max_element(candidatos.begin(), candidatos.end(), [&](int a, int b) { return aptidoes[a] < aptidoes[b]; }); //compara aptidoes para encontrar o melhor
     return populacao[melhor];                                   //apos encontrar a melhor rota, retorna ela
 }
@@ -85,10 +84,9 @@ std::vector<int> GA::selecaoTorneio()
 std::vector<int> GA::cruzamentoOX(const std::vector<int>& pai1, const std::vector<int>& pai2)
 {
     int n = pai1.size();          //tamanho da rota
-    std::random_device rd;
-    std::mt19937 g(rd());
-    int inicio = std::uniform_int_distribution<int>(0, n - 2)(g);           //gera dois pontos de corte
-    int fim = std::uniform_int_distribution<int>(inicio + 1, n - 1)(g);      
+    std::uniform_int_distribution<int> dist(0, n - 2);
+    int inicio = dist(rng);           //gera dois pontos de corte
+    int fim = std::uniform_int_distribution<int>(inicio + 1, n - 1)(rng);      
     std::vector<int> filho(n, -1);                                          //inicializa rota do filho com -1
     for (int i = inicio; i <= fim; i++)
     {
@@ -118,12 +116,10 @@ std::vector<int> GA::cruzamentoOX(const std::vector<int>& pai1, const std::vecto
 //func de mutacao por swap, troca duas cidades na rota com probabilidade taxaMut
 void GA::muta(std::vector<int>& rota)
 {
-    std::random_device rd;
-    std::mt19937 g(rd());
-    if (std::uniform_real_distribution<>(0.0, 1.0)(g) < taxaMut)
+    if (std::uniform_real_distribution<>(0.0, 1.0)(rng) < taxaMut)
     {
-        int i = std::uniform_int_distribution<int>(0, rota.size() - 1)(g);
-        int j = std::uniform_int_distribution<int>(0, rota.size() - 1)(g);
+        int i = std::uniform_int_distribution<int>(0, rota.size() - 1)(rng);
+        int j = std::uniform_int_distribution<int>(0, rota.size() - 1)(rng);
         std::swap(rota[i], rota[j]);
     }
 }
@@ -133,7 +129,14 @@ void GA::evoluir()
 {
     startPop();                     //inicializa populacao
     avaliarPop();                   //avalia populacao inicial
+
+    historicoMelhorDist.clear();
+
     auto inicio = std::chrono::high_resolution_clock::now();
+
+    auto it = std::max_element(aptidoes.begin(), aptidoes.end());
+    float melhorDist = 1.0f / *it;
+    historicoMelhorDist.push_back(melhorDist);
 
     for (int gen = 0; gen < numGen; ++gen)
     {
@@ -159,6 +162,10 @@ void GA::evoluir()
         populacao = novaPop;
         avaliarPop();                                       //avalia nova populacao                           
 
+        auto it = std::max_element(aptidoes.begin(), aptidoes.end());
+        float melhorDist = 1.0f / *it;
+        historicoMelhorDist.push_back(melhorDist);
+
         if (gen % 100 == 0 || gen == numGen - 1)            //depuração a cada 100 gerações
         {
             int melhorIdx = std::distance(aptidoes.begin(), std::max_element(aptidoes.begin(), aptidoes.end()));
@@ -179,4 +186,36 @@ void GA::evoluir()
     auto fim = std::chrono::high_resolution_clock::now();  //calcula tempo total
     std::chrono::duration<double> tempo = fim - inicio;
     std::cout << "Tempo total: " << tempo.count() << " segundos\n";
+}
+
+void GA::salvarHistorico(const std::string& filename) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Erro ao abrir arquivo: " << filename << std::endl;
+        return;
+    }
+    file << "Geracao,MelhorDistancia\n";
+    for (size_t i = 0; i < historicoMelhorDist.size(); ++i) {
+        file << i << "," << std::fixed << std::setprecision(2) << historicoMelhorDist[i] << "\n";
+    }
+    file.close();
+    std::cout << "Histórico salvo em: " << filename << std::endl;
+}
+
+void GA::salvarMelhorRota(const std::string& filename) const {
+    if (aptidoes.empty()) return;
+    auto it = std::max_element(aptidoes.begin(), aptidoes.end());
+    int idx = std::distance(aptidoes.begin(), it);
+
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Erro ao salvar rota: " << filename << std::endl;
+        return;
+    }
+    for (size_t i = 0; i < populacao[idx].size(); ++i) {
+        file << populacao[idx][i];
+        if (i + 1 < populacao[idx].size()) file << " ";
+    }
+    file.close();
+    std::cout << "Melhor rota salva em: " << filename << std::endl;
 }

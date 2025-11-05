@@ -3,6 +3,9 @@
 #include <iostream>
 #include <random>
 #include <cmath>
+#include <fstream>
+
+std::mt19937 rng(std::random_device{}());
 
 Mapa gerarMapaUniforme(int numPontos, float tamanho = 10.0f) {
     Mapa mapa;
@@ -39,11 +42,20 @@ int main()
     int tamPop = 1000;
     int numGen = 1000;
     float taxaMut = 0.05f;
+    
 
     std::cout << "Cenário Uniforme\n";
     Mapa mapaUniforme = gerarMapaUniforme(numPontos);
+    std::ofstream pontos_file("pontos_uniforme.csv");
+    for (int i = 0; i < numPontos; ++i) {
+        auto p = mapaUniforme.getPonto(i);
+        pontos_file << p.x << "," << p.y << "\n";
+    }
+    pontos_file.close();
     GA gaUniforme(mapaUniforme, tamPop, numGen, taxaMut);
     gaUniforme.evoluir();
+    gaUniforme.salvarHistorico("evolucao.csv");
+    gaUniforme.salvarMelhorRota("melhor_rota.txt");
 
     /*std::cout << "\nCenário Circular\n";
     Mapa mapaCirculo = gerarMapaCirculo(numPontos);
