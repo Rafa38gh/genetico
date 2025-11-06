@@ -203,19 +203,40 @@ void GA::salvarHistorico(const std::string& filename) {
 }
 
 void GA::salvarMelhorRota(const std::string& filename) const {
-    if (aptidoes.empty()) return;
+    if (aptidoes.empty() || populacao.empty()) return;
+
     auto it = std::max_element(aptidoes.begin(), aptidoes.end());
-    int idx = std::distance(aptidoes.begin(), it);
+    int idxMelhor = std::distance(aptidoes.begin(), it);
+    int idxPrimeira = 0;
+    int idxMeio = populacao.size() / 2;
 
     std::ofstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Erro ao salvar rota: " << filename << std::endl;
         return;
     }
-    for (size_t i = 0; i < populacao[idx].size(); ++i) {
-        file << populacao[idx][i];
-        if (i + 1 < populacao[idx].size()) file << " ";
+
+    // Salva a primeira rota
+    for (size_t i = 0; i < populacao[idxPrimeira].size(); ++i) {
+        file << populacao[idxPrimeira][i];
+        if (i + 1 < populacao[idxPrimeira].size()) file << " ";
     }
+    file << "\n";
+
+    // Salva a rota do meio
+    for (size_t i = 0; i < populacao[idxMeio].size(); ++i) {
+        file << populacao[idxMeio][i];
+        if (i + 1 < populacao[idxMeio].size()) file << " ";
+    }
+    file << "\n";
+
+    // Salva a melhor rota
+    for (size_t i = 0; i < populacao[idxMelhor].size(); ++i) {
+        file << populacao[idxMelhor][i];
+        if (i + 1 < populacao[idxMelhor].size()) file << " ";
+    }
+    file << "\n";
+
     file.close();
-    std::cout << "Melhor rota salva em: " << filename << std::endl;
+    std::cout << "Rotas (primeira, meio, melhor) salvas em: " << filename << std::endl;
 }

@@ -23,7 +23,7 @@ class GA
         std::vector<float> aptidoes;                    // Distância das rotas
 
     public:
-        GA(const Mapa& mapa, int tamPop, int numGen, float taxaMut, float taxaElit = 0.1f, int tamanhoTorneio = 8);
+        GA(const Mapa& mapa, int tamPop, int numGen, float taxaMut, float taxaElit = 0.1f, int tamanhoTorneio = 7);
 
         void startPop();
         float calcDist(const std::vector<int>& rota);

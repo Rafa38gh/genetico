@@ -21,7 +21,7 @@ Mapa gerarMapaUniforme(int numPontos, float tamanho = 10.0f) {
     return mapa;
 }
 
-Mapa gerarMapaCirculo(int numPontos, float raio = 5.0f) {
+Mapa gerarMapaCirculo(int numPontos, float raio = 100000.0f) {
     Mapa mapa;
     float centroX = 5.0f, centroY = 5.0f;
     for (int i = 0; i < numPontos; ++i) {
@@ -38,21 +38,20 @@ Mapa gerarMapaCirculo(int numPontos, float raio = 5.0f) {
 
 int main()
 {
-    int numPontos = 50;
-    int tamPop = 1000;
-    int numGen = 1000;
-    float taxaMut = 0.05f;
+    int numPontos = 90;
+    int tamPop = 200;
+    int numGen = 3000;
+    float taxaMut = 0.8f;
     
 
-    std::cout << "Cenário Uniforme\n";
-    Mapa mapaUniforme = gerarMapaUniforme(numPontos);
+    Mapa mapa = gerarMapaCirculo(numPontos);
     std::ofstream pontos_file("pontos_uniforme.csv");
     for (int i = 0; i < numPontos; ++i) {
-        auto p = mapaUniforme.getPonto(i);
+        auto p = mapa.getPonto(i);
         pontos_file << p.x << "," << p.y << "\n";
     }
     pontos_file.close();
-    GA gaUniforme(mapaUniforme, tamPop, numGen, taxaMut);
+    GA gaUniforme(mapa, tamPop, numGen, taxaMut);
     gaUniforme.evoluir();
     gaUniforme.salvarHistorico("evolucao.csv");
     gaUniforme.salvarMelhorRota("melhor_rota.txt");
