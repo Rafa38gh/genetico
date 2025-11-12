@@ -205,10 +205,14 @@ void GA::salvarHistorico(const std::string& filename) {
 void GA::salvarMelhorRota(const std::string& filename) const {
     if (aptidoes.empty() || populacao.empty()) return;
 
-    auto it = std::max_element(aptidoes.begin(), aptidoes.end());
-    int idxMelhor = std::distance(aptidoes.begin(), it);
-    int idxPrimeira = 0;
-    int idxMeio = populacao.size() / 2;
+    // Criar vetor de índices
+    std::vector<size_t> indices(populacao.size());
+    std::iota(indices.begin(), indices.end(), 0);
+
+    // Ordenar índices por aptidão: MENOR aptidão primeiro (pior → melhor)
+    std::sort(indices.begin(), indices.end(), [&](size_t a, size_t b) {
+        return aptidoes[a] < aptidoes[b];  // pior primeiro
+    });
 
     std::ofstream file(filename);
     if (!file.is_open()) {
@@ -216,27 +220,30 @@ void GA::salvarMelhorRota(const std::string& filename) const {
         return;
     }
 
-    // Salva a primeira rota
-    for (size_t i = 0; i < populacao[idxPrimeira].size(); ++i) {
-        file << populacao[idxPrimeira][i];
-        if (i + 1 < populacao[idxPrimeira].size()) file << " ";
+    // 1. Pior rota (índice 0 após ordenação)
+    const auto& pior = populacao[indices[0]];
+    for (size_t i = 0; i < pior.size(); ++i) {
+        file << pior[i];
+        if (i + 1 < pior.size()) file << " ";
     }
     file << "\n";
 
-    // Salva a rota do meio
-    for (size_t i = 0; i < populacao[idxMeio].size(); ++i) {
-        file << populacao[idxMeio][i];
-        if (i + 1 < populacao[idxMeio].size()) file << " ";
+    // 2. Rota mediana (meio da população ordenada)
+    const auto& mediana = populacao[indices[indices.size() / 2]];
+    for (size_t i = 0; i < mediana.size(); ++i) {
+        file << mediana[i];
+        if (i + 1 < mediana.size()) file << " ";
     }
     file << "\n";
 
-    // Salva a melhor rota
-    for (size_t i = 0; i < populacao[idxMelhor].size(); ++i) {
-        file << populacao[idxMelhor][i];
-        if (i + 1 < populacao[idxMelhor].size()) file << " ";
+    // 3. Melhor rota (último índice)
+    const auto& melhor = populacao[indices.back()];
+    for (size_t i = 0; i < melhor.size(); ++i) {
+        file << melhor[i];
+        if (i + 1 < melhor.size()) file << " ";
     }
     file << "\n";
 
     file.close();
-    std::cout << "Rotas (primeira, meio, melhor) salvas em: " << filename << std::endl;
+    std::cout << "Rotas (pior, mediana, melhor) salvas em: " << filename << std::endl;
 }

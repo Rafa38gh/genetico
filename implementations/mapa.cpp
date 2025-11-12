@@ -40,6 +40,11 @@ void Mapa::calcDist()
     }
 }
 
+void Mapa::calcDistOtima(){
+
+
+}
+
 Ponto Mapa::getPonto(int i) const
 {
     return pontos[i];

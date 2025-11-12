@@ -40,7 +40,7 @@ int main()
 {
     int numPontos = 90;
     int tamPop = 200;
-    int numGen = 3000;
+    int numGen = 6000;
     float taxaMut = 0.8f;
     
 

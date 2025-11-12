@@ -21,7 +21,8 @@ class Mapa
 
         void adicionarPonto(float x, float y);
         void calcDist();
-
+        void calcDistOtima();
+        
         // Setters
         //void setDist(int i, int j, float valor);
 
