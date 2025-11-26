@@ -40,8 +40,10 @@ int main()
 {
     int numPontos = 90;
     int tamPop = 200;
-    int numGen = 6000;
+    int numGen = 8000;
     float taxaMut = 0.8f;
+    
+    double dist = 0.0f;
     
 
     Mapa mapa = gerarMapaCirculo(numPontos);
@@ -55,6 +57,12 @@ int main()
     gaUniforme.evoluir();
     gaUniforme.salvarHistorico("evolucao.csv");
     gaUniforme.salvarMelhorRota("melhor_rota.txt");
+
+    for (int j = 0; j < numPontos; j++){
+        dist += mapa.getDist(j, (j + 1) % numPontos);
+    }
+
+    std::cout << "Distância total (circular): " << dist << std::endl;
 
     /*std::cout << "\nCenário Circular\n";
     Mapa mapaCirculo = gerarMapaCirculo(numPontos);
